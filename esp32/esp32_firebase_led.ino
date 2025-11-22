@@ -1,82 +1,105 @@
 #include <WiFi.h>
-#include <HTTPClient.h>
-#include <ArduinoJson.h>
+#include <Firebase_ESP_Client.h>
+#include "addons/RTDBHelper.h"
+#include "addons/TokenHelper.h"
 
-// Configurações WiFi
-const char* ssid = "SEU_WIFI_SSID";
-const char* password = "SUA_SENHA_WIFI";
+// ====== CONFIG WIFI ======
+#define WIFI_SSID "SEU_SSID"
+#define WIFI_PASSWORD "SUA_SENHA"
 
-// Configurações Firebase
-const char* firebase_host = "https://SEU_PROJETO_ID-default-rtdb.firebaseio.com/";
-const char* firebase_auth = "SUA_CHAVE_API";
+// ====== CONFIG FIREBASE ======
+#define API_KEY "AIzaSyAg_hYw7LBuxBb_GMSTuoj3uaa6BnY78KI"
+#define DATABASE_URL "https://trab-iot-default-rtdb.firebaseio.com"  // sem a barra final
 
-// Configuração do LED
-const int LED_PIN = 2; // GPIO2 (LED interno do ESP32)
+// Auth anônimo (se regras permitem)
+FirebaseAuth auth;
+FirebaseConfig config;
 
-// Variável para controle do estado anterior
-bool ultimoEstado = false;
+// Objetos globais
+FirebaseData fbData;
+FirebaseData stream;
+bool streamInicializado = false;
 
-void setup() {
-  Serial.begin(115200);
-  
-  // Configura o pino do LED como saída
-  pinMode(LED_PIN, OUTPUT);
-  digitalWrite(LED_PIN, LOW);
-  
-  // Conecta ao WiFi
-  WiFi.begin(ssid, password);
-  Serial.print("Conectando ao WiFi");
-  
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-  
-  Serial.println();
-  Serial.println("WiFi conectado!");
-  Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
+const int LED_PIN = 2;      // Ajustar se usar outro pino
+bool estadoLocalLED = false;
+
+// ====== FUNÇÃO PARA ATUALIZAR LED FISICO ======
+void aplicarEstadoLED(bool ligado) {
+  estadoLocalLED = ligado;
+  digitalWrite(LED_PIN, ligado ? HIGH : LOW);
+  Serial.printf("LED físico agora: %s\n", ligado ? "LIGADO" : "DESLIGADO");
 }
 
-void loop() {
-  if (WiFi.status() == WL_CONNECTED) {
-    HTTPClient http;
-    http.begin(String(firebase_host) + "led_status.json?auth=" + firebase_auth);
-    
-    int httpResponseCode = http.GET();
-    
-    if (httpResponseCode > 0) {
-      String response = http.getString();
-      Serial.println("Resposta do Firebase: " + response);
-      
-      // Parse do JSON
-      DynamicJsonDocument doc(1024);
-      deserializeJson(doc, response);
-      
-      // Verifica se o campo existe e não é nulo
-      if (!doc.isNull()) {
-        bool ledStatus = doc.as<bool>();
-        
-        // Só atualiza se o estado mudou
-        if (ledStatus != ultimoEstado) {
-          if (ledStatus) {
-            digitalWrite(LED_PIN, HIGH);
-            Serial.println("LED LIGADO");
-          } else {
-            digitalWrite(LED_PIN, LOW);
-            Serial.println("LED DESLIGADO");
-          }
-          ultimoEstado = ledStatus;
-        }
-      }
-    } else {
-      Serial.println("Erro na requisição HTTP: " + String(httpResponseCode));
-    }
-    
-    http.end();
+// ====== CALLBACK STREAM ======
+void streamCallback(FirebaseStream data) {
+  Serial.printf("Stream update: path=%s type=%s\n", data.dataPath().c_str(), data.dataType().c_str());
+  if (data.dataType() == "boolean") {
+    bool valor = data.boolData();
+    aplicarEstadoLED(valor);
   } else {
-    Serial.println("WiFi desconectado!");
+    Serial.println("Tipo inesperado no nó led_status");
   }
-  
-  delay(1000); // Verifica a cada 1 segundo
+}
+
+void streamTimeoutCallback(bool timeout) {
+  if (timeout) {
+    Serial.println("Stream timeout, reconectando...");
+  }
+  if (!stream.httpConnected()) {
+    Serial.printf("Stream HTTP erro: %d\n", stream.httpCode());
+  }
+}
+
+// ====== SETUP ======
+void setup() {
+  Serial.begin(115200);
+  pinMode(LED_PIN, OUTPUT);
+  aplicarEstadoLED(false);
+
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  Serial.print("Conectando WiFi");
+  while (WiFi.status() != WL_CONNECTED) {
+    Serial.print(".");
+    delay(500);
+  }
+  Serial.println("\nWiFi conectado!");
+  Serial.print("IP: ");
+  Serial.println(WiFi.localIP());
+
+  // Config Firebase
+  config.api_key = API_KEY;
+  config.database_url = DATABASE_URL;
+
+  // Login anônimo (gera token para requisições)
+  if (Firebase.signUp(&config, &auth, "", "")) {
+    Serial.println("Auth anônimo OK");
+  } else {
+    Serial.printf("Erro signup: %s\n", config.signer.signupError.message.c_str());
+  }
+
+  Firebase.begin(&config, &auth);
+  Firebase.reconnectNetwork(true);
+
+  // Iniciar stream do nó led_status
+  if (!Firebase.RTDB.beginStream(&stream, "/led_status")) {
+    Serial.printf("Erro iniciando stream: %s\n", stream.errorReason().c_str());
+  } else {
+    Firebase.RTDB.setStreamCallback(&stream, streamCallback, streamTimeoutCallback);
+    streamInicializado = true;
+    Serial.println("Stream led_status ativo!");
+  }
+
+  // Ler valor inicial (caso stream demore)
+  if (Firebase.RTDB.getBool(&fbData, "/led_status")) {
+    aplicarEstadoLED(fbData.boolData());
+  } else {
+    Serial.printf("Falha leitura inicial: %s\n", fbData.errorReason().c_str());
+  }
+}
+
+// ====== LOOP ======
+void loop() {
+  // Nada pesado: stream cuida das mudanças
+  // Se quiser enviar estado manualmente (por exemplo se você apertasse um botão físico):
+  // if (Firebase.RTDB.setBool(&fbData, "/led_status", estadoLocalLED)) { ... }
 }
