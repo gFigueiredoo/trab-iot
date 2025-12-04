@@ -1,0 +1,106 @@
+SeniorCare - Sistema H´ıbrido de monitoramento de idosos
+Conrado Maia Heckler1
+, Gabriel Figueiredo1
+, Julia Oliveira Martins ´
+1
+1Curso de Ciencia da Computac¸ ˆ ao – Universidade do Vale do Rio dos Sinos (UNISINOS) ˜
+Porto Alegre – RS – Brazil
+HecklerConrado@edu.unisinos.br, GCarolino@edu.unisinos.br
+JuliaMartins1@edu.unisinos.br
+Abstract. This project presents SeniorCare, an IoT-based system designed to
+continuously monitor elderly people. The solution integrates a simulated sensor platform in ESP32, a cloud backend for data processing, and a real-time
+dashboard for family monitoring. The IoT module is fully implemented in the
+Wokwi simulation environment, allowing for a faithful reproduction of the circuit, sensors, and reading logic without the need for physical hardware. The
+system monitors temperature, decreased oxygen saturation, falls, and routine
+check-ins. The architecture uses MQTT for communication and Firebase for
+storage.
+Resumo. Este projeto apresenta o SeniorCare, um sistema baseado em IoT destinado ao monitoramento cont´ınuo de idosos. A soluc¸ao integra uma plataforma ˜
+de sensores simulada em ESP32, um backend em nuvem para processamento de
+dados e um dashboard em tempo real para o monitoramento familiar. O modulo ´
+IoT e totalmente implementado no ambiente de simulac¸ ´ ao Wokwi, permitindo a ˜
+reproduc¸ao fiel do circuito, dos sensores e da l ˜ ogica de leitura sem necessidade ´
+de hardware f´ısico. O sistema monitora temperatura, reduc¸ao da saturac¸ ˜ ao˜
+de oxigenio, quedas e check-in de rotina. A arquitetura utiliza MQTT para ˆ
+comunicac¸ao e Firebase para armazenamento. ˜
+1. Introduc¸ao˜
+O aumento da expectativa de vida e a expansao da populac¸ ˜ ao idosa criam a necessidade de ˜
+soluc¸oes tecnol ˜ ogicas voltadas ´ a seguranc¸a e ao acompanhamento remoto. Sistemas IoT `
+aplicados a sa ` ude permitem a coleta cont ´ ´ınua de dados e a detecc¸ao precoce de eventos ˜
+cr´ıticos, como quedas ou variac¸oes preocupantes. ˜
+Neste contexto, o projeto SeniorCare propoe uma arquitetura simples, expans ˜ ´ıveis
+e de baixo custo, capaz de integrar sensores, backend e dashboard em uma unica soluc¸ ´ ao. ˜
+2. Estudo de Caso
+Neste projeto, o estudo de caso abordara a criac¸ ´ ao de um sistema IoT para monitoramento ˜
+de idosos em seus ambientes domesticos. O objetivo desta soluc¸ ´ ao˜ e detectar as condic¸ ´ oes ˜
+adversas de saude ou seguranc¸a, permitindo uma resposta ´ agil aos familiares. ´
+Os eventos monitorados serao: ˜
+• Temperatura: Alterac¸oes de temperatura corporal que podem indicar risco ˜
+• Saturac¸ao de Oxig ˜ enio: Representado por potenci ˆ ometro, simulando as variac¸ ˆ oes ˜
+de saturac¸ao. ˜
+• Queda: Obtida por potenciometro MPU6050, que ir ˆ a identificar os impactos abru- ´
+tos, assim como as quedas.
+• Check-in manual: Registrar o bem-estar e consciencia do idoso. ˆ
+3. Arquitetura de Monitoramento
+• Dispositivo IoT (ESP32): Coleta os dados dos sensores, e envia ao Broker MQTT.
+• Backend (Node.js): Processa os dados, calcula o score e salva no Firebase firestore.
+• Dashboard Web: Exibe os dados em tempo real utilizando o Firebase SDK.
+A comunicac¸ao entre m ˜ odulos segue o padr ´ ao via JSON publicando no t ˜ opico MQTT. ´
+4. Digrama de blocos da Arquitetura
+Figura 1. Diagrama de Arquitetura - Os autores, 2025
+5. Descric¸ao dos M ˜ odulos ´
+5.1. Modulo IoT ´
+O ESP32 e respons ´ avel pela leitura dos sensores e publicac¸ ´ ao MQTT a cada 2 segundos. ˜
+Um LED ira sinalizar os eventos ocorridos. ´
+5.2. Modulo Backend ´
+Sendo implementado em Node.js, ele ira realizar: ´
+• Recebimento MQTT;
+• Calculo do ´ ´ındice de bem-estar;
+• Armazenamento do historico; ´
+• Atualizac¸ao do documento para leitura em tempo real. ˜
+5.3. Dashboard
+Pagina HTML com Firebase Web SDK, que ir ´ a exibir: ´
+• Cartoes dos Sensores; ˜
+• Semafaro de sa ´ ude (Amarelo, verde e vermelho); ´
+• Ultima atualizac¸ ´ ao. ˜
+6. Hardware Utilizado
+• ESP32 - Microcontrolador com Wifi;
+• DHT22 - Medic¸ao de temperatura; ˜
+• MPU6050 - Acelerometro para detecc¸ ˆ ao de queda; ˜
+• Potenciometro - Simulac¸ ˆ ao de Saturac¸ ˜ ao de Oxig ˜ enio; ˆ
+• Botao - Check-in manual; ˜
+• LED - Indicac¸ao Visual de eventos. ˜
+7. Componentes de Software Necessarios ´
+7.1. Firmware
+• Arduino Core for ESP32
+• PubSubClient
+• ArduinoJson
+• DHT sensor library
+• Adafruit MPU6050
+7.2. Backend
+• Node.js
+• mqtt
+• firebase-admin
+7.3. Dashboard
+• HTML5/CSS3
+• Firebase Web SDK
+Referencias ˆ
+ARM Holdings (2025). What is iot cloud? why iot cloud matters. https://www.
+arm.com/glossary/iot-cloud. Accessed: 2025-12-01.
+ARM Newsroom (2021). Cloud-based embedded development
+to supercharge iot. https://newsroom.arm.com/blog/
+cloud-based-embedded-development. Accessed: 2025-12-01.
+Gordienko, Y., Stirenko, S., Alienin, O., Skala, K., Soyat, Z., Lopez Benito, J. R., and ´
+et al. (2017). Augmented coaching ecosystem for non-obtrusive adaptive personalized elderly care on the basis of cloud-fog-dew computing paradigm. arXiv preprint
+arXiv:1704.04988.
+Gralha, S. R., Fleig, T., Dihl, F. V., Morales, A. S., and Cazella, S. C. (2022). Iot technologies for elderly health care: a systematic mapping. Research, Society and Development,
+11(7).
+Lourenc¸o, T. M., Moreira, V. G., Fulber, F. F., and Silva, S. A. (2018). Envelhecimento, ¨
+fragilidade e hospitalizac¸ao: implicac¸ ˜ oes para a funcionalidade de idosos. ˜ Revista
+Brasileira de Geriatria e Gerontologia.
+Lv, Z., Xia, F., Wu, G., Yao, L., and Chen, Z. (2010). icare: A mobile health monitoring
+system for the elderly. arXiv preprint arXiv:1011.3852.
+Microsoft Corporation (2025). What is iot? cloud computing dictionary. https://azure.microsoft.com/en-us/resources/
+cloud-computing-dictionary/what-is-iot/. Accessed: 2025-12-
+01.
+Nath, R. K. and Thapliyal, H. (2021). Wearable health monitoring system for older adults
+in a smart home environment. arXiv preprint arXiv:2107.09509.

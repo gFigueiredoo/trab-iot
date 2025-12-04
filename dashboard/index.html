@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SeniorCare - Dashboard de Monitoramento</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-heartbeat"></i>
+                    <h1>SeniorCare</h1>
+                </div>
+                <div class="status-indicator">
+                    <div class="status-dot" id="connectionStatus"></div>
+                    <span id="connectionText">Conectando...</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Dashboard -->
+        <main class="dashboard">
+            <!-- Health Status Overview -->
+            <section class="health-overview">
+                <div class="health-score-card">
+                    <div class="health-score-content">
+                        <div class="score-circle" id="healthScoreCircle">
+                            <span class="score-number" id="healthScoreNumber">--</span>
+                            <span class="score-label">Score</span>
+                        </div>
+                        <div class="status-info">
+                            <h3 id="overallStatus">Verificando...</h3>
+                            <p id="lastUpdate">Última atualização: --</p>
+                        </div>
+                    </div>
+                    <div class="health-indicator" id="healthIndicator">
+                        <i class="fas fa-circle"></i>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sensor Cards -->
+            <section class="sensors-grid">
+                <!-- Temperature Card -->
+                <div class="sensor-card">
+                    <div class="sensor-header">
+                        <i class="fas fa-thermometer-half"></i>
+                        <h3>Temperatura</h3>
+                    </div>
+                    <div class="sensor-value">
+                        <span class="value" id="temperatureValue">--°C</span>
+                        <span class="unit">Corporal</span>
+                    </div>
+                    <div class="sensor-status" id="temperatureStatus">
+                        <i class="fas fa-circle"></i>
+                        <span>Normal</span>
+                    </div>
+                </div>
+
+                <!-- Oxygen Saturation Card -->
+                <div class="sensor-card">
+                    <div class="sensor-header">
+                        <i class="fas fa-lungs"></i>
+                        <h3>Saturação O₂</h3>
+                    </div>
+                    <div class="sensor-value">
+                        <span class="value" id="o2Value">--%</span>
+                        <span class="unit">SpO₂</span>
+                    </div>
+                    <div class="sensor-status" id="o2Status">
+                        <i class="fas fa-circle"></i>
+                        <span>Normal</span>
+                    </div>
+                </div>
+
+                <!-- Fall Detection Card -->
+                <div class="sensor-card">
+                    <div class="sensor-header">
+                        <i class="fas fa-running"></i>
+                        <h3>Movimento</h3>
+                    </div>
+                    <div class="sensor-value">
+                        <span class="value" id="fallStatus">Normal</span>
+                        <span class="unit">Atividade</span>
+                    </div>
+                    <div class="sensor-status" id="fallIndicator">
+                        <i class="fas fa-circle"></i>
+                        <span>Estável</span>
+                    </div>
+                </div>
+
+                <!-- Check-in Card -->
+                <div class="sensor-card">
+                    <div class="sensor-header">
+                        <i class="fas fa-hand-paper"></i>
+                        <h3>Check-in</h3>
+                    </div>
+                    <div class="sensor-value">
+                        <span class="value" id="checkinStatus">Aguardando</span>
+                        <span class="unit">Manual</span>
+                    </div>
+                    <div class="sensor-status" id="checkinIndicator">
+                        <i class="fas fa-circle"></i>
+                        <span>Pendente</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Alerts Section -->
+            <section class="alerts-section">
+                <h2>
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Alertas Recentes
+                </h2>
+                <div class="alerts-container" id="alertsContainer">
+                    <div class="no-alerts">
+                        <i class="fas fa-check-circle"></i>
+                        <p>Nenhum alerta no momento</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Device Status -->
+            <section class="device-status">
+                <div class="device-info">
+                    <h3>
+                        <i class="fas fa-microchip"></i>
+                        Status do Dispositivo
+                    </h3>
+                    <div class="device-details">
+                        <div class="detail-item">
+                            <span class="label">Device ID:</span>
+                            <span class="value" id="deviceId">ESP32_SeniorCare_001</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">LED Status:</span>
+                            <span class="value" id="ledStatus">
+                                <i class="fas fa-circle"></i>
+                                Desligado
+                            </span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Umidade:</span>
+                            <span class="value" id="humidityValue">--%</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-spinner">
+                <i class="fas fa-heartbeat"></i>
+                <p>Carregando dados do monitoramento...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
+    <!-- Firebase Config -->
+    <script src="firebase-config.js"></script>
+    
+    <!-- Main App Script -->
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,253 @@
+{
+  "version": 1,
+  "author": "Gabriel Figueiredo - SeniorCare Team",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "type": "board-esp32-s2-devkitm-1",
+      "id": "esp",
+      "top": 0,
+      "left": 0,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-dht22",
+      "id": "dht1",
+      "top": -268.5,
+      "left": 273,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-mpu6050",
+      "id": "mpu1",
+      "top": -92.18,
+      "left": 367.12,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-potentiometer",
+      "id": "pot1",
+      "top": -260.5,
+      "left": 172.6,
+      "attrs": {
+        "label": "O2 Saturation"
+      }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn1",
+      "top": -61,
+      "left": -268.8,
+      "attrs": {
+        "color": "green",
+        "label": "Check-in"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "led1",
+      "top": 162.4,
+      "left": -161.8,
+      "rotate": 270,
+      "attrs": {
+        "color": "red"
+      }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r1",
+      "top": 62.4,
+      "left": -144.55,
+      "rotate": 90,
+      "attrs": {
+        "value": "220"
+      }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r2",
+      "top": -62.95,
+      "left": -174.2,
+      "rotate": 180,
+      "attrs": {
+        "value": "10000"
+      }
+    }
+  ],
+  "connections": [
+    [
+      "esp:TX",
+      "$serialMonitor:RX",
+      "",
+      []
+    ],
+    [
+      "esp:RX",
+      "$serialMonitor:TX",
+      "",
+      []
+    ],
+    [
+      "esp:3V3",
+      "dht1:VCC",
+      "red",
+      [
+        "h0"
+      ]
+    ],
+    [
+      "esp:GND.1",
+      "dht1:GND",
+      "black",
+      [
+        "h0"
+      ]
+    ],
+    [
+      "esp:4",
+      "dht1:SDA",
+      "green",
+      [
+        "h0"
+      ]
+    ],
+    [
+      "esp:3V3",
+      "mpu1:VCC",
+      "red",
+      [
+        "h28.8",
+        "v-124.8",
+        "h336"
+      ]
+    ],
+    [
+      "esp:GND.1",
+      "mpu1:GND",
+      "black",
+      [
+        "h28.8",
+        "v-124.8",
+        "h336"
+      ]
+    ],
+    [
+      "esp:8",
+      "mpu1:SDA",
+      "blue",
+      [
+        "h28.8",
+        "v-124.8",
+        "h336"
+      ]
+    ],
+    [
+      "esp:9",
+      "mpu1:SCL",
+      "yellow",
+      [
+        "h28.8",
+        "v-124.8",
+        "h336"
+      ]
+    ],
+    [
+      "esp:3V3",
+      "pot1:VCC",
+      "red",
+      [
+        "h28.8",
+        "v-76.8",
+        "h134.4"
+      ]
+    ],
+    [
+      "esp:GND.1",
+      "pot1:GND",
+      "black",
+      [
+        "h28.8",
+        "v-76.8",
+        "h134.4"
+      ]
+    ],
+    [
+      "esp:1",
+      "pot1:SIG",
+      "orange",
+      [
+        "h28.8",
+        "v-76.8",
+        "h134.4"
+      ]
+    ],
+    [
+      "esp:2",
+      "btn1:1.l",
+      "purple",
+      [
+        "h28.8",
+        "v76.8",
+        "h230.4"
+      ]
+    ],
+    [
+      "esp:3V3",
+      "r2:1",
+      "red",
+      [
+        "h-5.03",
+        "v-81.11"
+      ]
+    ],
+    [
+      "r2:2",
+      "btn1:1.r",
+      "red",
+      [
+        "v9.6",
+        "h28.8"
+      ]
+    ],
+    [
+      "esp:GND.1",
+      "btn1:2.l",
+      "black",
+      [
+        "h28.8",
+        "v76.8",
+        "h230.4"
+      ]
+    ],
+    [
+      "esp:5",
+      "r1:1",
+      "cyan",
+      [
+        "h-28.8",
+        "v-61.91",
+        "h-91.43"
+      ]
+    ],
+    [
+      "r1:2",
+      "led1:A",
+      "cyan",
+      [
+        "v9.6",
+        "h38.4"
+      ]
+    ],
+    [
+      "esp:GND.1",
+      "led1:C",
+      "black",
+      [
+        "h-28.8",
+        "v5.29",
+        "h-177.83"
+      ]
+    ]
+  ],
+  "dependencies": {}
+}

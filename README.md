@@ -1,164 +1,244 @@
-# Projeto IoT: Controle de LED com ESP32 e Firebase
+# SeniorCare - Sistema de Monitoramento IoT para Idosos
 
-Este projeto demonstra como criar um sistema IoT simples onde você pode controlar um LED conectado ao ESP32 através de uma página web, usando Firebase Realtime Database como intermediário.
+![SeniorCare Logo](https://img.shields.io/badge/SeniorCare-IoT%20Monitoring-blue?style=for-the-badge&logo=heart)
 
-## 📋 Funcionalidades
+Sistema híbrido baseado em IoT para monitoramento contínuo de idosos, integrando sensores ESP32, backend em nuvem e dashboard em tempo real.
 
-- ✅ Interface web responsiva para controlar LED
-- ✅ Comunicação em tempo real via Firebase
-- ✅ ESP32 conectado ao WiFi
-- ✅ Controle de LED integrado do ESP32
-- ✅ Status visual em tempo real
+## 📋 Índice
 
-## 🏗️ Estrutura do Projeto
+- [Visão Geral](#visão-geral)
+- [Arquitetura](#arquitetura)
+- [Características](#características)
+- [Componentes](#componentes)
+- [Instalação](#instalação)
+- [Configuração](#configuração)
+- [Uso](#uso)
+- [Desenvolvimento](#desenvolvimento)
+- [Contribuição](#contribuição)
+
+## 🎯 Visão Geral
+
+O **SeniorCare** é um sistema completo de monitoramento IoT projetado para acompanhar a saúde e segurança de idosos em tempo real. Utilizando sensores não invasivos e uma arquitetura robusta em nuvem, o sistema detecta condições adversas e fornece alertas imediatos aos familiares.
+
+### Eventos Monitorados:
+- 🌡️ **Temperatura corporal** - Detecção de febre ou hipotermia
+- 🫁 **Saturação de Oxigênio** - Monitoramento de SpO₂
+- 🚨 **Detecção de Quedas** - Identificação de impactos abruptos
+- ✅ **Check-in Manual** - Confirmação de bem-estar
+
+## 🏗️ Arquitetura
 
 ```
-trab-iot/
-├── README.md                          # Este arquivo
-├── esp32/
-│   └── esp32_firebase_led.ino        # Código Arduino para ESP32
-├── frontend/
-│   └── index.html                     # Interface web
-└── docs/
-    └── firebase-setup.md              # Guia de configuração do Firebase
+┌─────────────┐    MQTT     ┌─────────────┐    Firebase    ┌─────────────┐
+│    ESP32    │─────────────▶│   Backend   │──────────────▶│  Dashboard  │
+│   Sensors   │  HiveMQ     │   Node.js   │   Realtime    │   Web App   │
+└─────────────┘             └─────────────┘               └─────────────┘
 ```
 
-## 🔧 Componentes Necessários
+### Componentes da Arquitetura:
+1. **Dispositivo IoT (ESP32)** - Coleta dados dos sensores e transmite via MQTT
+2. **Backend (Node.js)** - Processa dados, calcula health score e gerencia Firebase
+3. **Dashboard Web** - Interface em tempo real com Firebase SDK
 
-### Hardware
-- 1x ESP32 (qualquer modelo)
-- 1x Cabo USB para programação
-- 1x LED interno (GPIO2) - já integrado no ESP32
+## ✨ Características
 
-### Software
-- Arduino IDE
-- Navegador web moderno
-- Conta Google (para Firebase)
+- ⚡ **Monitoramento em tempo real** com atualização a cada 2 segundos
+- 📊 **Health Score** calculado automaticamente baseado nos sensores
+- 🚨 **Sistema de alertas** com diferentes níveis de severidade
+- 📱 **Dashboard responsivo** com design moderno
+- 🔄 **Integração MQTT** para comunicação eficiente
+- ☁️ **Armazenamento em nuvem** com Firebase Firestore
+- 🎨 **Interface intuitiva** com semáforo de saúde visual
+- 📈 **Histórico de dados** para análise de tendências
 
-## 📚 Bibliotecas Necessárias
+## 🔧 Componentes
 
-Para o ESP32, instale as seguintes bibliotecas no Arduino IDE:
+### Hardware Necessário:
+- **ESP32-S2-DevKitM-1** - Microcontrolador principal
+- **DHT22** - Sensor de temperatura e umidade
+- **MPU6050** - Acelerômetro/giroscópio para detecção de quedas
+- **Potenciômetro** - Simulação de saturação O₂
+- **Botão Push** - Check-in manual
+- **LED Vermelho** - Indicador visual de alertas
+- **Resistores** - 220Ω e 10kΩ
 
-1. **WiFi** (já incluída no ESP32)
-2. **HTTPClient** (já incluída no ESP32)
-3. **ArduinoJson** - Instalar via Library Manager
+### Software Necessário:
+- **Arduino IDE** com ESP32 Core
+- **Node.js** (versão 16+)
+- **Firebase Project** configurado
+- **HiveMQ Cloud** (broker MQTT gratuito)
 
-### Como instalar ArduinoJson:
-1. Abra Arduino IDE
-2. Vá em `Sketch` > `Include Library` > `Manage Libraries`
-3. Pesquise por "ArduinoJson"
-4. Instale a versão 6.x.x
+## 📦 Instalação
 
-## 🚀 Como Usar
-
-### Passo 1: Configurar Firebase
-1. Siga o guia detalhado em [`docs/firebase-setup.md`](docs/firebase-setup.md)
-2. Anote suas credenciais do Firebase
-
-### Passo 2: Configurar ESP32
-1. Abra `esp32/esp32_firebase_led.ino` no Arduino IDE
-2. Substitua as configurações:
-   ```cpp
-   const char* ssid = "SEU_WIFI_SSID";
-   const char* password = "SUA_SENHA_WIFI";
-   const char* firebase_host = "https://SEU_PROJETO_ID-default-rtdb.firebaseio.com/";
-   const char* firebase_auth = "SUA_API_KEY";
-   ```
-3. Conecte o ESP32 via USB
-4. Selecione a placa correta em `Tools` > `Board` > `ESP32`
-5. Selecione a porta correta em `Tools` > `Port`
-6. Clique em `Upload` (ícone da seta)
-
-### Passo 3: Configurar Frontend
-1. Abra `frontend/index.html` em um editor de texto
-2. Substitua a configuração do Firebase:
-   ```javascript
-   const firebaseConfig = {
-       apiKey: "SUA_API_KEY",
-       authDomain: "SEU_PROJETO.firebaseapp.com",
-       databaseURL: "https://SEU_PROJETO_ID-default-rtdb.firebaseio.com/",
-       projectId: "SEU_PROJETO_ID",
-       storageBucket: "SEU_PROJETO.appspot.com",
-       messagingSenderId: "123456789",
-       appId: "SUA_APP_ID"
-   };
-   ```
-
-### Passo 4: Testar o Sistema
-1. Abra o Serial Monitor no Arduino IDE (115200 baud)
-2. Verifique se o ESP32 conectou ao WiFi
-3. Abra `frontend/index.html` em um navegador
-4. Clique nos botões para ligar/desligar o LED
-5. Observe o LED no ESP32 e as mensagens no Serial Monitor
-
-## 📱 Como Funciona
-
-1. **Frontend** → Envia comando para Firebase quando botão é clicado
-2. **Firebase** → Armazena o estado do LED (`led_status: true/false`)
-3. **ESP32** → Monitora mudanças no Firebase a cada 1 segundo
-4. **ESP32** → Liga/desliga o LED baseado no valor recebido
-
-## 🔍 Monitoramento
-
-### Serial Monitor (ESP32)
-```
-Conectando ao WiFi.....
-WiFi conectado!
-IP address: 192.168.1.100
-Resposta do Firebase: true
-LED LIGADO
-Resposta do Firebase: false
-LED DESLIGADO
+### 1. Clonar o Repositório
+```bash
+git clone <seu-repositorio>
+cd trab-iot-2
 ```
 
-### Firebase Console
-Você pode visualizar as mudanças em tempo real acessando:
-`Firebase Console` > `Realtime Database`
+### 2. Configurar Backend
+```bash
+cd backend
+npm install
+```
 
-### Browser Console
-Abra as ferramentas de desenvolvedor (F12) para ver logs detalhados.
+### 3. Configurar Firebase
+1. Acesse [Firebase Console](https://console.firebase.google.com/)
+2. Crie um novo projeto ou use existente
+3. Ative Firestore Database
+4. Gere chaves do Service Account
+5. Configure as credenciais no arquivo `.env`
 
-## 🛠️ Solução de Problemas
+### 4. Configurar Firmware
+1. Abra `firmware/seniorcare.ino` no Arduino IDE
+2. Instale as bibliotecas necessárias:
+   - WiFi
+   - PubSubClient
+   - DHT sensor library
+   - ArduinoJson
+   - Adafruit MPU6050
 
-### ESP32 não conecta ao WiFi
-- Verifique SSID e senha
-- Certifique-se que o WiFi é 2.4GHz (ESP32 não suporta 5GHz)
-- Verifique se o WiFi não tem portal captivo
+## ⚙️ Configuração
 
-### Erro HTTP no ESP32
-- Confirme a URL do Firebase
-- Verifique se a API Key está correta
-- Teste a URL manualmente no navegador
+### Backend (.env)
+```env
+PORT=3000
+FIREBASE_PRIVATE_KEY_ID=your_key_id
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYOUR_PRIVATE_KEY\n-----END PRIVATE KEY-----\n"
+FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxx@meu-esp32.iam.gserviceaccount.com
+FIREBASE_CLIENT_ID=your_client_id
+```
 
-### Frontend não funciona
-- Abra o console do navegador (F12)
-- Verifique se há erros de configuração
-- Confirme se todas as credenciais estão corretas
+### Firebase Config (dashboard/firebase-config.js)
+```javascript
+const firebaseConfig = {
+    apiKey: "sua-api-key",
+    authDomain: "meu-esp32.firebaseapp.com",
+    projectId: "meu-esp32",
+    // ... outras configurações
+};
+```
 
-### LED não responde
-- Verifique conexões físicas
-- Confirme se está usando GPIO2
-- Verifique se o código foi carregado corretamente
+### Wokwi Simulation
+1. Acesse [Wokwi](https://wokwi.com/)
+2. Importe o diagrama JSON fornecido
+3. Carregue o código `firmware/seniorcare.ino`
+4. Execute a simulação
 
-## 📈 Próximos Passos
+## 🚀 Uso
 
-Para expandir este projeto, você pode:
+### 1. Iniciar Backend
+```bash
+cd backend
+npm start
+```
 
-- [ ] Adicionar mais sensores (temperatura, umidade)
-- [ ] Implementar autenticação de usuário
-- [ ] Criar um aplicativo móvel
-- [ ] Adicionar controle de múltiplos dispositivos
-- [ ] Implementar notificações push
-- [ ] Criar gráficos de histórico de dados
+### 2. Abrir Dashboard
+```bash
+cd dashboard
+# Abrir index.html em um servidor web local
+python -m http.server 8000  # Python
+# ou
+npx serve .  # Node.js
+```
 
-## 🤝 Contribuições
+### 3. Executar Simulação Wokwi
+- Abra o projeto no Wokwi
+- Clique em "Start Simulation"
+- Monitore os dados no Serial Monitor e Dashboard
 
-Sinta-se à vontade para fazer fork deste projeto e contribuir com melhorias!
+### 4. Interagir com Sensores
+- **Potenciômetro**: Ajustar saturação O₂
+- **Botão Verde**: Realizar check-in
+- **MPU6050**: Simular quedas movimentando o sensor
+- **DHT22**: Monitorar temperatura ambiente
+
+## 📊 Dashboard
+
+O dashboard fornece:
+
+### Visão Geral
+- **Health Score** - Pontuação de 0-100 baseada nos sensores
+- **Status Geral** - Verde (Saudável), Amarelo (Atenção), Vermelho (Crítico)
+- **Última Atualização** - Timestamp da última leitura
+
+### Cards dos Sensores
+- **Temperatura** - Valor atual e status
+- **Saturação O₂** - Percentual SpO₂
+- **Movimento** - Status de atividade/quedas
+- **Check-in** - Estado do check-in manual
+
+### Alertas
+- Lista de alertas recentes com severidade
+- Tipos: Febre, Hipotermia, Baixo O₂, Quedas
+- Timestamp e detalhes de cada alerta
+
+### Status do Dispositivo
+- Device ID, Status do LED, Umidade ambiente
+
+## 🔄 Fluxo de Dados
+
+1. **ESP32** coleta dados dos sensores a cada 2 segundos
+2. Dados são enviados via **MQTT** para o broker HiveMQ
+3. **Backend Node.js** recebe e processa os dados
+4. **Health Score** é calculado baseado nos valores dos sensores
+5. Dados são armazenados no **Firebase Firestore**
+6. **Dashboard** atualiza em tempo real via Firebase listeners
+7. **Alertas** são gerados para condições críticas
+
+## 🛠️ Desenvolvimento
+
+### Estrutura do Projeto
+```
+trab-iot-2/
+├── firmware/
+│   └── seniorcare.ino          # Código Arduino ESP32
+├── backend/
+│   ├── package.json            # Dependências Node.js
+│   ├── server.js               # Servidor principal
+│   └── .env.example            # Template de configuração
+├── dashboard/
+│   ├── index.html              # Interface principal
+│   ├── style.css               # Estilos CSS
+│   ├── script.js               # Lógica JavaScript
+│   └── firebase-config.js      # Configuração Firebase
+├── especificacoes-projeto      # Documentação acadêmica
+└── README.md                   # Este arquivo
+```
+
+### Adicionando Novos Sensores
+
+1. **Firmware**: Adicionar leitura do sensor em `readSensors()`
+2. **Backend**: Processar novo dado em `processIoTData()`
+3. **Dashboard**: Criar novo card e atualização em tempo real
+
+### Personalizando Alertas
+
+Edite a função `processIoTData()` no backend para adicionar novas condições de alerta baseadas nos valores dos sensores.
+
+## 🤝 Contribuição
+
+Desenvolvido por **Gabriel Figueiredo** para o projeto SeniorCare da UNISINOS.
+
+### Para contribuir:
+1. Faça um fork do projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/nova-feature`)
+3. Commit suas mudanças (`git commit -am 'Adiciona nova feature'`)
+4. Push para a branch (`git push origin feature/nova-feature`)
+5. Abra um Pull Request
 
 ## 📄 Licença
 
-Este projeto está sob licença MIT. Veja detalhes no arquivo LICENSE.
+Este projeto é desenvolvido para fins acadêmicos como parte do curso de Ciência da Computação da UNISINOS.
+
+## 🆘 Suporte
+
+Para dúvidas ou problemas:
+- Verifique a documentação
+- Consulte os logs do backend e browser console
+- Confirme as configurações do Firebase
+- Teste a conectividade MQTT
 
 ---
 
-**Desenvolvido para fins educacionais** 📚
+**SeniorCare** - Monitoramento IoT que salva vidas! ❤️

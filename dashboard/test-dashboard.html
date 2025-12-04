@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SeniorCare - Dashboard de Teste</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            color: #e74c3c;
+            margin-bottom: 10px;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .status-badge.connected { background: #27ae60; }
+        .status-badge.disconnected { background: #e74c3c; }
+        .status-badge.testing { background: #f39c12; }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .card h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .data-display {
+            font-size: 24px;
+            font-weight: bold;
+            color: #3498db;
+            margin: 10px 0;
+        }
+        
+        .health-score {
+            font-size: 48px;
+            font-weight: bold;
+            text-align: center;
+            padding: 20px;
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            color: white;
+        }
+        
+        .score-good { background: #27ae60; }
+        .score-warning { background: #f39c12; }
+        .score-critical { background: #e74c3c; }
+        
+        .log {
+            background: #2c3e50;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        .btn:hover {
+            background: #2980b9;
+        }
+        
+        .alert {
+            background: #fff5f5;
+            border: 1px solid #fed7d7;
+            border-left: 4px solid #e74c3c;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        
+        .instructions {
+            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .instructions h4 {
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+        
+        .step {
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏥 SeniorCare - Dashboard de Teste</h1>
+            <div class="status-badge testing" id="connectionStatus">
+                🧪 MODO TESTE - Aguardando dados...
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h4>📋 Como testar o sistema:</h4>
+            <div class="step">
+                <strong>1. Backend:</strong> Verifique se o servidor está rodando (terminal deve mostrar "Aguardando dados do ESP32...")
+            </div>
+            <div class="step">
+                <strong>2. Wokwi:</strong> Abra <a href="https://wokwi.com/" target="_blank">wokwi.com</a>, crie projeto ESP32 e cole o código do firmware
+            </div>
+            <div class="step">
+                <strong>3. Monitorar:</strong> Este dashboard atualiza automaticamente quando receber dados via API
+            </div>
+        </div>
+        
+        <div class="grid">
+            <div class="card">
+                <h3>📊 Health Score</h3>
+                <div class="health-score score-good" id="healthScore">
+                    --
+                </div>
+                <div style="text-align: center; margin-top: 10px;">
+                    <span id="overallStatus">Aguardando dados...</span>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>🌡️ Temperatura</h3>
+                <div class="data-display" id="temperature">--°C</div>
+                <small>Corporal</small>
+            </div>
+            
+            <div class="card">
+                <h3>🫁 Saturação O₂</h3>
+                <div class="data-display" id="o2Saturation">--%</div>
+                <small>SpO₂</small>
+            </div>
+            
+            <div class="card">
+                <h3>🚨 Detecção de Queda</h3>
+                <div class="data-display" id="fallStatus">Normal</div>
+                <small>Status do movimento</small>
+            </div>
+            
+            <div class="card">
+                <h3>✅ Check-in</h3>
+                <div class="data-display" id="checkinStatus">Pendente</div>
+                <small>Status manual</small>
+            </div>
+            
+            <div class="card">
+                <h3>🔧 Status do Sistema</h3>
+                <div>
+                    <strong>Última atualização:</strong><br>
+                    <span id="lastUpdate">Nunca</span>
+                </div>
+                <div style="margin-top: 10px;">
+                    <strong>Mensagens recebidas:</strong><br>
+                    <span id="totalMessages">0</span>
+                </div>
+                <div style="margin-top: 15px;">
+                    <button class="btn" onclick="checkBackend()">Verificar Backend</button>
+                    <button class="btn" onclick="refreshData()">Atualizar Dados</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card" style="margin-top: 20px;">
+            <h3>📝 Log de Atividades</h3>
+            <div class="log" id="activityLog">
+                [TESTE] Dashboard carregado. Aguardando dados do ESP32...<br>
+                [INFO] Para começar: inicie a simulação no Wokwi<br>
+                [INFO] Backend deve estar rodando na porta 3000<br>
+            </div>
+        </div>
+        
+        <div class="card" style="margin-top: 20px;">
+            <h3>🚨 Alertas</h3>
+            <div id="alertsContainer">
+                <p>Nenhum alerta no momento</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let isBackendRunning = false;
+        let dataUpdateInterval;
+        
+        // Função para adicionar log
+        function addLog(message) {
+            const log = document.getElementById('activityLog');
+            const timestamp = new Date().toLocaleTimeString();
+            log.innerHTML += `[${timestamp}] ${message}<br>`;
+            log.scrollTop = log.scrollHeight;
+        }
+        
+        // Verificar se o backend está rodando
+        async function checkBackend() {
+            try {
+                const response = await fetch('http://localhost:3000/health');
+                if (response.ok) {
+                    const data = await response.json();
+                    isBackendRunning = true;
+                    document.getElementById('connectionStatus').innerHTML = '✅ Backend Conectado';
+                    document.getElementById('connectionStatus').className = 'status-badge connected';
+                    addLog('✅ Backend está rodando e MQTT conectado!');
+                    
+                    // Começar a atualizar dados
+                    startDataUpdates();
+                } else {
+                    throw new Error('Backend não respondeu');
+                }
+            } catch (error) {
+                isBackendRunning = false;
+                document.getElementById('connectionStatus').innerHTML = '❌ Backend Desconectado';
+                document.getElementById('connectionStatus').className = 'status-badge disconnected';
+                addLog('❌ Backend não está acessível. Verifique se está rodando na porta 3000');
+            }
+        }
+        
+        // Atualizar dados do backend
+        async function refreshData() {
+            if (!isBackendRunning) {
+                addLog('⚠️ Backend não está conectado. Clique em "Verificar Backend" primeiro');
+                return;
+            }
+            
+            try {
+                const [currentResponse, healthResponse] = await Promise.all([
+                    fetch('http://localhost:3000/current'),
+                    fetch('http://localhost:3000/health')
+                ]);
+                
+                if (currentResponse.ok && healthResponse.ok) {
+                    const currentData = await currentResponse.json();
+                    const healthData = await healthResponse.json();
+                    
+                    updateDashboard(currentData, healthData);
+                    addLog('📊 Dados atualizados com sucesso');
+                } else {
+                    addLog('⚠️ Erro ao buscar dados do backend');
+                }
+            } catch (error) {
+                addLog('❌ Erro de conexão: ' + error.message);
+            }
+        }
+        
+        // Atualizar dashboard com dados recebidos
+        function updateDashboard(data, stats) {
+            // Health Score
+            document.getElementById('healthScore').textContent = data.healthScore || '--';
+            const scoreElement = document.getElementById('healthScore');
+            scoreElement.className = 'health-score';
+            if (data.healthScore >= 80) {
+                scoreElement.classList.add('score-good');
+            } else if (data.healthScore >= 60) {
+                scoreElement.classList.add('score-warning');
+            } else {
+                scoreElement.classList.add('score-critical');
+            }
+            
+            // Status geral
+            let statusText = 'Aguardando...';
+            if (data.overallStatus === 'GOOD') statusText = 'Saudável';
+            else if (data.overallStatus === 'WARNING') statusText = 'Atenção';
+            else if (data.overallStatus === 'CRITICAL') statusText = 'Crítico';
+            document.getElementById('overallStatus').textContent = statusText;
+            
+            // Sensores
+            document.getElementById('temperature').textContent = data.temperature ? `${data.temperature.toFixed(1)}°C` : '--°C';
+            document.getElementById('o2Saturation').textContent = data.o2Saturation ? `${data.o2Saturation}%` : '--%';
+            document.getElementById('fallStatus').textContent = data.fallDetected ? 'Queda Detectada!' : 'Normal';
+            document.getElementById('checkinStatus').textContent = data.checkinStatus ? 'Realizado' : 'Pendente';
+            
+            // Sistema
+            document.getElementById('lastUpdate').textContent = stats.lastMessage || 'Nunca';
+            document.getElementById('totalMessages').textContent = stats.totalMessages || 0;
+            
+            // Se há dados novos, significa que ESP32 está funcionando
+            if (stats.totalMessages > 0) {
+                document.getElementById('connectionStatus').innerHTML = '🟢 ESP32 Enviando Dados';
+                document.getElementById('connectionStatus').className = 'status-badge connected';
+            }
+        }
+        
+        // Iniciar atualizações automáticas
+        function startDataUpdates() {
+            if (dataUpdateInterval) clearInterval(dataUpdateInterval);
+            
+            dataUpdateInterval = setInterval(() => {
+                refreshData();
+            }, 3000); // Atualizar a cada 3 segundos
+            
+            addLog('🔄 Atualizações automáticas iniciadas (3 segundos)');
+        }
+        
+        // Verificar backend automaticamente ao carregar
+        window.onload = function() {
+            addLog('🚀 Dashboard inicializado');
+            checkBackend();
+        };
+    </script>
+</body>
+</html>
