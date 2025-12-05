@@ -56,41 +56,41 @@ void setup() {
   delay(2000); // Aguardar estabilização
   
   Serial.println("\n=== SENIORCARE SISTEMA INICIADO ===");
-  Serial.println("Versão: Wokwi Optimized");
+  Serial.println("Versao: Wokwi Optimized");
   
   // Configurar pinos
   pinMode(LED_PIN, OUTPUT);
   pinMode(CHECKIN_BTN_PIN, INPUT_PULLUP);
   digitalWrite(LED_PIN, LOW);
-  Serial.println("✅ Pinos configurados");
+  Serial.println("Pinos configurados");
   
   // Testar LED
   digitalWrite(LED_PIN, HIGH);
   delay(500);
   digitalWrite(LED_PIN, LOW);
-  Serial.println("✅ LED testado");
+  Serial.println("LED testado");
   
   // Inicializar DHT22
   dht.begin();
-  Serial.println("✅ DHT22 inicializado");
+  Serial.println("DHT22 inicializado");
   
   // Inicializar MPU6050
   Wire.begin(MPU_SDA_PIN, MPU_SCL_PIN);
-  Serial.print("🔄 Inicializando MPU6050...");
+  Serial.print("Inicializando MPU6050...");
   
   if (mpu.begin()) {
     mpu.setAccelerometerRange(MPU6050_RANGE_8_G);
     mpu.setGyroRange(MPU6050_RANGE_500_DEG);
     mpu.setFilterBandwidth(MPU6050_BAND_21_HZ);
     mpuInitialized = true;
-    Serial.println(" ✅ MPU6050 OK");
+    Serial.println(" MPU6050 OK");
   } else {
-    Serial.println(" ⚠️ MPU6050 não encontrado - continuando sem ele");
+    Serial.println(" MPU6050 nao encontrado - continuando sem ele");
     mpuInitialized = false;
   }
   
   // Conectar WiFi
-  Serial.print("🔄 Conectando WiFi");
+  Serial.print("Conectando WiFi");
   WiFi.begin(ssid, password);
   
   int attempts = 0;
@@ -101,17 +101,17 @@ void setup() {
   }
   
   if (WiFi.status() == WL_CONNECTED) {
-    Serial.println("\n✅ WiFi conectado!");
-    Serial.print("📡 IP: ");
+    Serial.println("\nWiFi conectado!");
+    Serial.print("IP: ");
     Serial.println(WiFi.localIP());
   } else {
-    Serial.println("\n❌ WiFi falhou - continuando offline");
+    Serial.println("\nWiFi falhou - continuando offline");
   }
   
   // Configurar MQTT
   client.setServer(mqtt_server, mqtt_port);
   
-  Serial.println("\n🚀 SISTEMA PRONTO PARA MONITORAMENTO!");
+  Serial.println("\nSISTEMA PRONTO PARA MONITORAMENTO!");
   Serial.println("=====================================");
 }
 
@@ -149,7 +149,7 @@ void readSensors() {
   if (currentButtonState != lastButtonState) {
     if (currentButtonState == LOW) {
       checkinPressed = true;
-      Serial.println("✅ CHECK-IN REALIZADO!");
+      Serial.println("CHECK-IN REALIZADO!");
     }
     lastButtonState = currentButtonState;
   }
@@ -161,15 +161,15 @@ void readSensors() {
   if (!isnan(newTemp) && !isnan(newHumidity)) {
     temperature = newTemp;
     humidity = newHumidity;
-    Serial.printf("🌡️ DHT22: %.1f°C, %.1f%%\n", temperature, humidity);
+    Serial.printf("DHT22: %.1f°C, %.1f%%\n", temperature, humidity);
   } else {
-    Serial.println("⚠️ DHT22: Erro na leitura");
+    Serial.println("DHT22: Erro na leitura");
   }
   
   // 3. Ler potenciômetro
   int potValue = analogRead(O2_POT_PIN);
   o2Saturation = map(potValue, 0, 4095, 85, 100);
-  Serial.printf("🫁 O2: %d%% (pot: %d)\n", o2Saturation, potValue);
+  Serial.printf("O2: %d%% (pot: %d)\n", o2Saturation, potValue);
   
   // 4. Ler MPU6050
   if (mpuInitialized) {
@@ -182,12 +182,12 @@ void readSensors() {
     
     if (accelMagnitude > 15.0) {
       fallDetected = true;
-      Serial.println("🚨 QUEDA DETECTADA!");
+      Serial.println("QUEDA DETECTADA!");
     }
     
-    Serial.printf("📐 MPU6050: %.1f m/s²\n", accelMagnitude);
+    Serial.printf("MPU6050: %.1f m/s²\n", accelMagnitude);
   } else {
-    Serial.println("📐 MPU6050: Não disponível");
+    Serial.println("MPU6050: Nao disponivel");
   }
 }
 
@@ -209,7 +209,7 @@ void calculateHealthScore() {
   healthScore = max(0, healthScore);
   
   if (healthScore != oldScore) {
-    Serial.printf("📊 Health Score: %d → %d\n", oldScore, healthScore);
+    Serial.printf("Health Score: %d -> %d\n", oldScore, healthScore);
   }
 }
 
@@ -218,20 +218,20 @@ void updateLED() {
   
   if (shouldLight) {
     digitalWrite(LED_PIN, HIGH);
-    Serial.println("🔴 LED: ACESO (Alerta!)");
+    Serial.println("LED: ACESO (Alerta!)");
   } else {
     digitalWrite(LED_PIN, LOW);
-    Serial.println("⚪ LED: Apagado (Normal)");
+    Serial.println("LED: Apagado (Normal)");
   }
 }
 
 void printSensorData() {
-  Serial.println("📋 RESUMO DOS SENSORES:");
+  Serial.println("RESUMO DOS SENSORES:");
   Serial.printf("   Temperatura: %.1f°C\n", temperature);
   Serial.printf("   Umidade: %.1f%%\n", humidity);
   Serial.printf("   O2: %d%%\n", o2Saturation);
-  Serial.printf("   Queda: %s\n", fallDetected ? "SIM" : "NÃO");
-  Serial.printf("   Check-in: %s\n", checkinPressed ? "SIM" : "NÃO");
+  Serial.printf("   Queda: %s\n", fallDetected ? "SIM" : "NAO");
+  Serial.printf("   Check-in: %s\n", checkinPressed ? "SIM" : "NAO");
   Serial.printf("   Health Score: %d\n", healthScore);
   Serial.printf("   LED: %s\n", digitalRead(LED_PIN) ? "ACESO" : "APAGADO");
 }
@@ -240,11 +240,11 @@ void reconnectMQTT() {
   static unsigned long lastAttempt = 0;
   if (millis() - lastAttempt < 5000) return; // Tentar apenas a cada 5s
   
-  Serial.print("🔄 Conectando MQTT...");
+  Serial.print("Conectando MQTT...");
   if (client.connect(mqtt_client_id.c_str())) {
-    Serial.println(" ✅ MQTT Conectado!");
+    Serial.println(" MQTT Conectado!");
   } else {
-    Serial.printf(" ❌ Falhou (rc=%d)\n", client.state());
+    Serial.printf(" Falhou (rc=%d)\n", client.state());
   }
   lastAttempt = millis();
 }
@@ -266,10 +266,10 @@ void sendMQTTData() {
   serializeJson(doc, jsonString);
   
   if (client.publish(mqtt_topic, jsonString.c_str())) {
-    Serial.println("📤 DADOS ENVIADOS VIA MQTT:");
+    Serial.println("DADOS ENVIADOS VIA MQTT:");
     Serial.println(jsonString);
   } else {
-    Serial.println("❌ Falha ao enviar MQTT");
+    Serial.println("Falha ao enviar MQTT");
   }
   
   // Reset flags

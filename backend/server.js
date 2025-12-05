@@ -64,25 +64,25 @@ let systemStats = {
 
 // Conexão MQTT
 mqttClient.on('connect', () => {
-  console.log('🟢 Conectado ao broker MQTT HiveMQ');
+  console.log('Conectado ao broker MQTT HiveMQ');
   systemStats.isOnline = true;
   
   mqttClient.subscribe(MQTT_TOPIC, (err) => {
     if (err) {
-      console.error('❌ Erro ao se inscrever no tópico:', err);
+      console.error('Erro ao se inscrever no tópico:', err);
     } else {
-      console.log(`📡 Inscrito no tópico: ${MQTT_TOPIC}`);
+      console.log(`Inscrito no tópico: ${MQTT_TOPIC}`);
     }
   });
 });
 
 mqttClient.on('error', (error) => {
-  console.error('❌ Erro MQTT:', error);
+  console.error('Erro MQTT:', error);
   systemStats.isOnline = false;
 });
 
 mqttClient.on('offline', () => {
-  console.log('🔴 MQTT desconectado');
+  console.log('MQTT desconectado');
   systemStats.isOnline = false;
 });
 
@@ -90,7 +90,7 @@ mqttClient.on('offline', () => {
 mqttClient.on('message', async (topic, message) => {
   try {
     const data = JSON.parse(message.toString());
-    console.log('📥 Dados recebidos:', data);
+    console.log('Dados recebidos:', data);
     
     systemStats.totalMessages++;
     systemStats.lastMessage = new Date().toISOString();
@@ -101,10 +101,10 @@ mqttClient.on('message', async (topic, message) => {
     // Salvar no Firebase
     await saveToFirebase(processedData);
     
-    console.log('✅ Dados processados e salvos no Firebase');
+    console.log('Dados processados e salvos no Firebase');
     
   } catch (error) {
-    console.error('❌ Erro ao processar mensagem MQTT:', error);
+    console.error('Erro ao processar mensagem MQTT:', error);
   }
 });
 
@@ -196,7 +196,7 @@ async function saveToFirebase(data) {
     }
     
   } catch (error) {
-    console.error('❌ Erro ao salvar no Firebase:', error);
+    console.error('Erro ao salvar no Firebase:', error);
     throw error;
   }
 }
@@ -281,24 +281,24 @@ app.get('/alerts', async (req, res) => {
 
 // Iniciar servidor
 app.listen(PORT, () => {
-  console.log(`🚀 Servidor SeniorCare rodando na porta ${PORT}`);
-  console.log(`📊 Dashboard: http://localhost:${PORT}`);
-  console.log(`🏥 Health Check: http://localhost:${PORT}/health`);
+  console.log(`Servidor SeniorCare rodando na porta ${PORT}`);
+  console.log(`Dashboard: http://localhost:${PORT}`);
+  console.log(`Health Check: http://localhost:${PORT}/health`);
 });
 
 // Tratamento de erros
 process.on('unhandledRejection', (reason, promise) => {
-  console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });
 
 process.on('uncaughtException', (error) => {
-  console.error('❌ Uncaught Exception:', error);
+  console.error('Uncaught Exception:', error);
   process.exit(1);
 });
 
 // Graceful shutdown
 process.on('SIGINT', () => {
-  console.log('🛑 Encerrando servidor...');
+  console.log('Encerrando servidor...');
   mqttClient.end();
   process.exit(0);
 });
